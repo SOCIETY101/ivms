@@ -1,0 +1,21 @@
+{
+  "name": "pointage",
+  "version": "1.0.0",
+  "description": "Attendance records watcher",
+  "keywords": [
+    "pointage"
+  ],
+  "license": "ISC",
+  "author": "Aethos",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "moment-timezone": "^0.6.2",
+    "mysql2": "^3.22.3",
+    "node-cron": "^4.2.1"
+  }
+}
