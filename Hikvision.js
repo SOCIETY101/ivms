@@ -58,7 +58,7 @@ class HikvisionAPI {
     maxResults = 10,
   }) {
     const url = `${this.host}/ISAPI/AccessControl/AcsEvent?format=json`;
-    const startTime = moment().utc(true).subtract(2, "hours").format("YYYY-MM-DDTHH:mm:ssZ");
+    const startTime = moment().utc(true).format("YYYY-MM-DDTHH:mm:ssZ");
     const endTime = moment()
       .utc(true)
       .add(15, "second")
