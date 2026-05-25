@@ -2,7 +2,7 @@ class AttendanceRecord {
   constructor(data) {
     this.recordedAt = data.time;
     this.userId = data.employeeNoString;
-    this.status = data.attendanceStatus;
+    this.status = data.attendanceStatus == undefined ? null : data.attendanceStatus;
   } 
 }
 

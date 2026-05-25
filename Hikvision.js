@@ -45,7 +45,7 @@ class HikvisionAPI {
     if(users?.UserInfoSearch?.numOfMatches > 0) {
       return  users.UserInfoSearch.UserInfo.map(user => ({
           userId: user.employeeNo,
-          name: user.name,
+          name: user?.name || 'Unknown',
         }));
       }
       return [];
@@ -58,8 +58,7 @@ class HikvisionAPI {
     maxResults = 10,
   }) {
     const url = `${this.host}/ISAPI/AccessControl/AcsEvent?format=json`;
-    const userUrl = `${this.host}/ISAPI/AccessControl/UserInfo?format=json`;
-    const startTime = moment().utc(true).format("YYYY-MM-DDTHH:mm:ssZ");
+    const startTime = moment().utc(true).subtract(2, "hours").format("YYYY-MM-DDTHH:mm:ssZ");
     const endTime = moment()
       .utc(true)
       .add(15, "second")
