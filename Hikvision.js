@@ -10,14 +10,22 @@ class HikvisionAPI {
     this.major = 5;
     this.minor = 38;
     this.maxResults = 10;
+    this.startTime = moment()
+      .utc(true)
+      .subtract(4, "hour")
+      .format("YYYY-MM-DDTHH:mm:ssZ");
+    this.endTime = moment()
+      .utc(true)
+      .add(15, "second")
+      .format("YYYY-MM-DDTHH:mm:ssZ");
   }
 
   digestRequest(url, username, password, method = "GET", body = null) {
     return new Promise((resolve, reject) => {
-      let cmd = `curl  --digest -u "${username}:${password}" -X ${method}`;
+      let cmd = `curl  --digest -u "admin:${password}" -X ${method}`;
       cmd += ` -H "Content-Type: application/json"`;
       if (body && method !== "GET") {
-        cmd += ` -d '${JSON.stringify(body)}'`;
+        cmd += ` -d "${JSON.stringify(body).replace(/"/g, '\\"')}"`
       }
       cmd += ` "${url}"`;
       exec(cmd, (error, stdout, stderr) => {
@@ -60,16 +68,8 @@ class HikvisionAPI {
     return [];
   }
 
-  async getUsersRecords({ position = 0 }) {
+  async getUsersRecords({ position = 0,star }) {
     const host = `${this.host}/ISAPI/AccessControl/AcsEvent?format=json`;
-    const startTime = moment()
-      .utc(true)
-      .subtract(4, "hour")
-      .format("YYYY-MM-DDTHH:mm:ssZ");
-    const endTime = moment()
-      .utc(true)
-      .add(15, "second")
-      .format("YYYY-MM-DDTHH:mm:ssZ");
     const payload = {
       AcsEventCond: {
         searchID: "1",
@@ -77,8 +77,8 @@ class HikvisionAPI {
         maxResults: this.maxResults,
         major: this.major,
         minor: this.minor,
-        startTime,
-        endTime,
+        startTime:this.startTime,
+        endTime:this.endTime
       },
     };
     try {
@@ -97,12 +97,13 @@ class HikvisionAPI {
 
   async getAttendance({position = 0}) {
     try {
-      const attendanceResponse = await this.getUsersRecords(position);
+
+      const attendanceResponse = await this.getUsersRecords({position});
       if (attendanceResponse.totalMatches > 10) {
-        let position = position + attendanceResponse.numOfMatches;
-        while (position < attendanceResponse.totalMatches) {
-          const nextBatch = await this.getUsersRecords(position);
-          position += position + nextBatch.numOfMatches;
+        var nextPosition = position + attendanceResponse.numOfMatches;
+        while (nextPosition < attendanceResponse.totalMatches) {
+          const nextBatch = await this.getUsersRecords({nextPosition});
+          nextPosition += nextPosition + nextBatch.numOfMatches;
           attendanceResponse.records.push(...nextBatch.records);
         }
       }

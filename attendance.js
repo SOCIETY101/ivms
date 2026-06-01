@@ -9,6 +9,9 @@ class AttendanceRecord {
 class AttendanceResponse {
   constructor(response) {
     const acs = response.AcsEvent;
+    if(!acs){
+      throw new Error(`Failed : ${response.statusString}`);
+    }
     this.searchID = acs.searchID;
     this.responseStatus = acs.responseStatusStrg;
     this.numOfMatches = acs.numOfMatches;

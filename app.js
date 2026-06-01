@@ -14,7 +14,7 @@ try {
           username: process.env.USERNAME,
           password: process.env.PASSWORD_DEVICE_1,
         });
-        const attendance = await hikvisionAPI.getAttendance();
+        const attendance = await hikvisionAPI.getAttendance({position: 0});
         if (attendance?.numOfMatches > 0) {
           const mySQLService = new MySQLService();
           const users = await hikvisionAPI.getUserInfo({
@@ -59,7 +59,7 @@ try {
           username: process.env.USERNAME,
           password: process.env.PASSWORD_DEVICE_2,
         });
-        const attendance = await hikvisionAPI.getAttendance();
+        const attendance = await hikvisionAPI.getAttendance({position:0});
         if (attendance?.numOfMatches > 0) {
           const mySQLService = new MySQLService();
           const users = await hikvisionAPI.getUserInfo({
@@ -76,7 +76,7 @@ try {
           );
         }
       } catch (_) {
-        console.log("Error fetching attendance data for device 2",_);
+        console.log("Error fetching attendance data for device 2");
       }
     },
     {
