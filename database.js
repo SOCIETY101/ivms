@@ -19,16 +19,18 @@ class MySQLService {
         userId,
         name,
         recorded_at,
-        status
+        status,
+        room
       )
-      VALUES (?, ?, ?, ?)
+      VALUES (?, ?, ?, ?,?)
     `;
 
     const values = [
       record.userId,
       record.name,
       record.recordedAt,
-      record.status
+      record.status,
+      record.device
     ];
 
    await this.pool.execute(sql, values);

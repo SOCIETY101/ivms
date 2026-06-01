@@ -29,6 +29,7 @@ try {
                 null,
               status: record.status,
               recordedAt: record.recordedAt,
+              device:"room 3"
             })),
           );
         }
@@ -69,11 +70,10 @@ try {
           await mySQLService.insertMany(
             attendance.records.map((record) => ({
               userId: record.userId,
-              name:
-                users.find((user) => user.userId === record.userId)?.name ||
-                'Unknown',
+              name:  users.find((user) => user.userId === record.userId)?.name || 'Unknown',
               status: record.status,
               recordedAt: record.recordedAt,
+              device:"room 5"
             })),
           );
         }
