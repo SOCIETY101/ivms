@@ -18,14 +18,12 @@ try {
         if (attendance?.numOfMatches > 0) {
           const mySQLService = new MySQLService();
           const users = await hikvisionAPI.getUserInfo({
-            userIds: attendance.records.map((record) => record.userId),
+            userIds:[...new Set(attendance.records.map(record => record.userId))]
           });
           await mySQLService.insertMany(
             attendance.records.map((record) => ({
               userId: record.userId,
-              name:
-                users.find((user) => user.userId === record.userId)?.name ||
-                null,
+              name:users.find((user) => user.userId === record.userId)?.name || 'Unknown',
               status: record.status,
               recordedAt: record.recordedAt,
               device:"room 3"
@@ -63,7 +61,7 @@ try {
         if (attendance?.numOfMatches > 0) {
           const mySQLService = new MySQLService();
           const users = await hikvisionAPI.getUserInfo({
-            userIds: attendance.records.map((record) => record.userId),
+            userIds:[...new Set(attendance.records.map(record => record.userId))],
           });
           await mySQLService.insertMany(
             attendance.records.map((record) => ({
