@@ -7,6 +7,9 @@ class HikvisionAPI {
     this.host = host;
     this.username = username;
     this.password = password;
+    this.major = 5;
+    this.minor = 38;
+    this.maxResults = 10;
   }
 
   digestRequest(url, username, password, method = "GET", body = null) {
@@ -30,9 +33,9 @@ class HikvisionAPI {
     });
   }
 
-  async getUserInfo({userIds}) {
+  async getUserInfo({ userIds }) {
     const url = `${this.host}/ISAPI/AccessControl/UserInfo/Search`;
-    if(userIds.length === 0) return [];
+    if (userIds.length === 0) return [];
     const payload = {
       UserInfoSearchCond: {
         searchID: "1",
@@ -41,24 +44,28 @@ class HikvisionAPI {
         employeeNoList: userIds.map((userId) => ({ employeeNo: userId })),
       },
     };
-    const users = await this.digestRequest(url, this.username, this.password, "POST", payload);
-    if(users?.UserInfoSearch?.numOfMatches > 0) {
-      return  users.UserInfoSearch.UserInfo.map(user => ({
-          userId: user.employeeNo,
-          name: user?.name || 'Unknown',
-        }));
-      }
-      return [];
+    const users = await this.digestRequest(
+      url,
+      this.username,
+      this.password,
+      "POST",
+      payload,
+    );
+    if (users?.UserInfoSearch?.numOfMatches > 0) {
+      return users.UserInfoSearch.UserInfo.map((user) => ({
+        userId: user.employeeNo,
+        name: user?.name || "Unknown",
+      }));
+    }
+    return [];
   }
-  
-  async getAttendance({
-    position = 0,
-    major = 5,
-    minor = 38,
-    maxResults = 10,
-  }) {
-    const url = `${this.host}/ISAPI/AccessControl/AcsEvent?format=json`;
-    const startTime = moment().utc(true).format("YYYY-MM-DDTHH:mm:ssZ");
+
+  async getUsersRecords({ position = 0 }) {
+    const host = `${this.host}/ISAPI/AccessControl/AcsEvent?format=json`;
+    const startTime = moment()
+      .utc(true)
+      .subtract(4, "hour")
+      .format("YYYY-MM-DDTHH:mm:ssZ");
     const endTime = moment()
       .utc(true)
       .add(15, "second")
@@ -67,22 +74,39 @@ class HikvisionAPI {
       AcsEventCond: {
         searchID: "1",
         searchResultPosition: position,
-        maxResults,
-        major,
-        minor,
+        maxResults: this.maxResults,
+        major: this.major,
+        minor: this.minor,
         startTime,
         endTime,
       },
     };
     try {
       const response = await this.digestRequest(
-        url,
+        host,
         this.username,
         this.password,
         "POST",
         payload,
       );
-      return new AttendanceResponse(response);
+      return new AttendanceResponse(response);  
+    } catch (e) {
+      throw new Error(`Failed to fetch attendance data : ${e}`);
+    }
+  }
+
+  async getAttendance() {
+    try {
+      const attendanceResponse = await this.getUsersRecords({ position });
+      if (attendanceResponse.totalMatches > 10) {
+        let position = position + attendanceResponse.numOfMatches;
+        while (position < attendanceResponse.totalMatches) {
+          const nextBatch = await this.getUsersRecords({position});
+          position += position + nextBatch.numOfMatches;
+          attendanceResponse.records.push(...nextBatch.records);
+        }
+      }
+      return attendanceResponse;
     } catch (_) {
       throw new Error(`Failed to fetch attendance data : ${_}`);
     }

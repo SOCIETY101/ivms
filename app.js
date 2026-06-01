@@ -9,13 +9,12 @@ try {
     "*/15 * * * * *",
     async () => {
       try {
-        var position = 0;
         const hikvisionAPI = new HikvisionAPI({
           host: process.env.HOST_1,
           username: process.env.USERNAME,
           password: process.env.PASSWORD_DEVICE_1,
         });
-        const attendance = await hikvisionAPI.getAttendance({ position });
+        const attendance = await hikvisionAPI.getAttendance();
         if (attendance?.numOfMatches > 0) {
           const mySQLService = new MySQLService();
           const users = await hikvisionAPI.getUserInfo({
@@ -55,13 +54,12 @@ try {
     "*/15 * * * * *",
     async () => {
       try {
-        var position = 0;
         const hikvisionAPI = new HikvisionAPI({
           host: process.env.HOST_2,
           username: process.env.USERNAME,
           password: process.env.PASSWORD_DEVICE_2,
         });
-        const attendance = await hikvisionAPI.getAttendance({ position });
+        const attendance = await hikvisionAPI.getAttendance();
         if (attendance?.numOfMatches > 0) {
           const mySQLService = new MySQLService();
           const users = await hikvisionAPI.getUserInfo({
