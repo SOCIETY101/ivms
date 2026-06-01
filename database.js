@@ -1,5 +1,5 @@
 import { createPool } from 'mysql2/promise';
-
+import moment from "moment";
 class MySQLService {
   constructor() {
     this.pool = createPool({
@@ -23,12 +23,11 @@ class MySQLService {
         room
       )
       VALUES (?, ?, ?, ?,?)
-    `;
-
+    `
     const values = [
       record.userId,
       record.name,
-      record.recordedAt,
+      moment(record.recordedAt.replace(/([+-]\d{2}:\d{2}|Z)$/, "")).add(record.device.includes("3") ? '1' : '0','hour').format("YYYY-MM-DD HH:mm:ss"),
       record.status,
       record.device
     ];
