@@ -97,11 +97,11 @@ class HikvisionAPI {
 
   async getAttendance() {
     try {
-      const attendanceResponse = await this.getUsersRecords({ position });
+      const attendanceResponse = await this.getUsersRecords();
       if (attendanceResponse.totalMatches > 10) {
         let position = position + attendanceResponse.numOfMatches;
         while (position < attendanceResponse.totalMatches) {
-          const nextBatch = await this.getUsersRecords({position});
+          const nextBatch = await this.getUsersRecords();
           position += position + nextBatch.numOfMatches;
           attendanceResponse.records.push(...nextBatch.records);
         }
