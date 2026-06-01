@@ -33,7 +33,7 @@ try {
           );
         }
       } catch (_) {
-        console.log("Error fetching attendance data for device 1");
+        console.log("Fetching attendance data for device 1");
       }
     },
     {
@@ -76,7 +76,7 @@ try {
           );
         }
       } catch (_) {
-        console.log("Error fetching attendance data for device 2");
+        console.log("Fetching attendance data for device 2");
       }
     },
     {

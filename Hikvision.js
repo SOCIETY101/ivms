@@ -10,10 +10,7 @@ class HikvisionAPI {
     this.major = 5;
     this.minor = 38;
     this.maxResults = 10;
-    this.startTime = moment()
-      .utc(true)
-      .subtract(4, "hour")
-      .format("YYYY-MM-DDTHH:mm:ssZ");
+    this.startTime = moment().utc(true).format("YYYY-MM-DDTHH:mm:ssZ");
     this.endTime = moment()
       .utc(true)
       .add(15, "second")
@@ -91,7 +88,7 @@ class HikvisionAPI {
       );
       return new AttendanceResponse(response);  
     } catch (e) {
-      throw new Error(`Failed to fetch attendance data : ${e}`);
+      throw new Error(e?.message);
     }
   }
 
@@ -109,7 +106,7 @@ class HikvisionAPI {
       }
       return attendanceResponse;
     } catch (_) {
-      throw new Error(`Failed to fetch attendance data : ${_}`);
+      throw new Error(_);
     }
   }
 }
