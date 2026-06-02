@@ -26,7 +26,7 @@ class HikvisionAPI {
         cmd += ` -d "${JSON.stringify(body).replace(/"/g, '\\"')}"`
       }
       cmd += ` "${url}"`;
-      exec(cmd, (error, stdout, stderr) => {
+      exec(cmd,{windowsHide:true}, (error, stdout, stderr) => {
         if (error) {
           return reject(error);
         }
