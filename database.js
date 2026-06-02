@@ -27,7 +27,7 @@ class MySQLService {
     const values = [
       record.userId,
       record.name,
-      moment(record.recordedAt.replace(/([+-]\d{2}:\d{2}|Z)$/, "")).add(record.device.includes("3") ? '1' : '0','hour').format("YYYY-MM-DD HH:mm:ss"),
+      moment(record.recordedAt.replace(/([+-]\d{2}:\d{2}|Z)$/, "")).format("YYYY-MM-DD HH:mm:ss"),
       record.status,
       record.device
     ];

@@ -3,17 +3,18 @@ import moment from "moment";
 import { AttendanceResponse } from "./attendance.js";
 
 class HikvisionAPI {
-  constructor({ host, username, password }) {
+  constructor({ host, username, password,device }) {
     this.host = host;
     this.username = username;
     this.password = password;
     this.major = 5;
     this.minor = 38;
     this.maxResults = 10;
-    this.startTime = moment().utc(true).format("YYYY-MM-DDTHH:mm:ssZ");
+    this.device = device;
+    this.startTime = moment().utc(true).subtract(this.device.includes('5') ? 3615 : 15,'seconds').format("YYYY-MM-DDTHH:mm:ssZ");
     this.endTime = moment()
       .utc(true)
-      .add(15, "second")
+      .subtract(this.device.includes('5') ? 3600:0,'seconds')
       .format("YYYY-MM-DDTHH:mm:ssZ");
   }
 
@@ -86,7 +87,7 @@ class HikvisionAPI {
         "POST",
         payload,
       );
-      return new AttendanceResponse(response);  
+      return new AttendanceResponse(response,this.device);  
     } catch (e) {
       throw new Error(e?.message);
     }

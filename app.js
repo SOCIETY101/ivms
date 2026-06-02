@@ -13,6 +13,7 @@ try {
           host: process.env.HOST_1,
           username: process.env.USERNAME,
           password: process.env.PASSWORD_DEVICE_1,
+          device:'room 3'
         });
         const attendance = await hikvisionAPI.getAttendance({position: 0});
         if (attendance?.numOfMatches > 0) {
@@ -26,7 +27,7 @@ try {
               name:users.find((user) => user.userId === record.userId)?.name || 'Unknown',
               status: record.status,
               recordedAt: record.recordedAt,
-              device:"room 3"
+              device:attendance.device
             })),
           );
         }
@@ -56,6 +57,7 @@ try {
           host: process.env.HOST_2,
           username: process.env.USERNAME,
           password: process.env.PASSWORD_DEVICE_2,
+          device:'room 5'
         });
         const attendance = await hikvisionAPI.getAttendance({position:0});
         if (attendance?.numOfMatches > 0) {
@@ -69,7 +71,7 @@ try {
               name:  users.find((user) => user.userId === record.userId)?.name || 'Unknown',
               status: record.status,
               recordedAt: record.recordedAt,
-              device:"room 5"
+              device:attendance.device
             })),
           );
         }
