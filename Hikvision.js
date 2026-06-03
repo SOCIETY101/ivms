@@ -14,7 +14,7 @@ class HikvisionAPI {
     this.startTime = moment().utc(true).subtract(this.device.includes('5') ? 3615 : 15,'seconds').format("YYYY-MM-DDTHH:mm:ssZ");
     this.endTime = moment()
       .utc(true)
-      .subtract(this.device.includes('5') ? 3600:0,'seconds')
+      .subtract(this.device.includes('5') ? 3601:1,'seconds')
       .format("YYYY-MM-DDTHH:mm:ssZ");
   }
 
