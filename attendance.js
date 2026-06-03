@@ -15,7 +15,7 @@ class AttendanceResponse {
     this.searchID = acs.searchID;
     this.responseStatus = acs.responseStatusStrg;
     this.numOfMatches = acs.numOfMatches;
-    this.totalMatches = acs.totalsMatches;
+    this.totalMatches = acs.totalMatches;
     this.device = device;
     this.records = acs.numOfMatches > 0 ? (acs.InfoList || []).map(
       item => new AttendanceRecord(item)

@@ -1,9 +1,10 @@
 import { exec } from "child_process";
 import moment from "moment";
 import { AttendanceResponse } from "./attendance.js";
+import UserResponse from "./user.js";
 
 class HikvisionAPI {
-  constructor({ host, username, password,device }) {
+  constructor({ host, username, password,device}) {
     this.host = host;
     this.username = username;
     this.password = password;
@@ -11,8 +12,8 @@ class HikvisionAPI {
     this.minor = 38;
     this.maxResults = 10;
     this.device = device;
-    this.startTime = moment().utc(true).subtract(this.device.includes('5') ? 3615 : 15,'seconds').format("YYYY-MM-DDTHH:mm:ssZ");
-    this.endTime = moment()
+    this.startTime =  moment().utc(true).subtract(this.device.includes('5') ? 3615 : 15,'seconds').format("YYYY-MM-DDTHH:mm:ssZ");
+    this.endTime =  moment()
       .utc(true)
       .subtract(this.device.includes('5') ? 3601:1,'seconds')
       .format("YYYY-MM-DDTHH:mm:ssZ");
@@ -39,34 +40,56 @@ class HikvisionAPI {
     });
   }
 
-  async getUserInfo({ userIds }) {
-    const url = `${this.host}/ISAPI/AccessControl/UserInfo/Search`;
-    if (userIds.length === 0) return [];
+  async getusersDetails({position = 0,ids}){
+    const host  = `${this.host}/ISAPI/AccessControl/UserInfo/Search`;
     const payload = {
       UserInfoSearchCond: {
         searchID: "1",
-        searchResultPosition: 0,
-        maxResults: userIds.length,
-        employeeNoList: userIds.map((userId) => ({ employeeNo: userId })),
+        searchResultPosition: position,
+        maxResults: 10,
+        employeeNoList: ids.map((userId) => ({ employeeNo: userId })),
       },
     };
-    const users = await this.digestRequest(
-      url,
-      this.username,
-      this.password,
-      "POST",
-      payload,
-    );
-    if (users?.UserInfoSearch?.numOfMatches > 0) {
-      return users.UserInfoSearch.UserInfo.map((user) => ({
-        userId: user.employeeNo,
-        name: user?.name || "Unknown",
-      }));
+
+   try {
+      const response = await this.digestRequest(
+        host,
+        this.username,
+        this.password,
+        "POST",
+        payload,
+      );
+
+      return new UserResponse(response);
+    } catch (e) {
+       throw new Error(e?.message);
     }
-    return [];
+
   }
 
-  async getUsersRecords({ position = 0,star }) {
+  async getUserInfo({ userIds,position= 0 }) {
+
+    try{
+
+      if (userIds.length === 0) return [];
+      const userResponse =  await this.getusersDetails({position:0,ids:userIds});
+
+      if (userResponse.totalMatches > 10) {
+        var nextPosition = position + userResponse.numOfMatches;
+        while (nextPosition < userResponse.totalMatches) {
+          let nextBatch = await this.getusersDetails({position:nextPosition,ids:userIds});
+          nextPosition += nextBatch.numOfMatches;
+          userResponse.users.push(...nextBatch.users);
+        }
+      }
+      return userResponse.users;
+    }catch(_){
+      console.log(_.message);
+      return [];
+    }
+  }
+
+  async getUsersRecords({ position = 0 }) {
     const host = `${this.host}/ISAPI/AccessControl/AcsEvent?format=json`;
     const payload = {
       AcsEventCond: {
@@ -100,8 +123,8 @@ class HikvisionAPI {
       if (attendanceResponse.totalMatches > 10) {
         var nextPosition = position + attendanceResponse.numOfMatches;
         while (nextPosition < attendanceResponse.totalMatches) {
-          const nextBatch = await this.getUsersRecords({nextPosition});
-          nextPosition += nextPosition + nextBatch.numOfMatches;
+          let nextBatch = await this.getUsersRecords({position:nextPosition});
+          nextPosition += nextBatch.numOfMatches;
           attendanceResponse.records.push(...nextBatch.records);
         }
       }
