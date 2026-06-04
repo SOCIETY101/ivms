@@ -40,7 +40,6 @@ try {
               device:attendance.device
             })),
           );
-          await mySQLService.close();
         }
       } catch (_) {
         notification.sendEmail({body: `Failed to fetch attendance data for device 1\n. ${_.message}`});
@@ -87,7 +86,6 @@ try {
               device:attendance.device
             })),
           );
-          await mySQLService.close();
         }
       } catch (_) {
         notification.sendEmail({body: `Failed to fetch attendance data for device 2\n. ${_.message}`});
