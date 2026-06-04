@@ -4,7 +4,7 @@ import { AttendanceResponse } from "./attendance.js";
 import UserResponse from "./user.js";
 
 class HikvisionAPI {
-  constructor({ host, username, password,device}) {
+  constructor({ host, username, password,device,s,e}) {
     this.host = host;
     this.username = username;
     this.password = password;
@@ -12,8 +12,8 @@ class HikvisionAPI {
     this.minor = 38;
     this.maxResults = 10;
     this.device = device;
-    this.startTime =  moment().utc(true).subtract(this.device.includes('5') ? 3615 : 15,'seconds').format("YYYY-MM-DDTHH:mm:ssZ");
-    this.endTime =  moment()
+    this.startTime = s ?? moment().utc(true).subtract(this.device.includes('5') ? 3615 : 15,'seconds').format("YYYY-MM-DDTHH:mm:ssZ");
+    this.endTime = e ?? moment()
       .utc(true)
       .subtract(this.device.includes('5') ? 3601:1,'seconds')
       .format("YYYY-MM-DDTHH:mm:ssZ");
