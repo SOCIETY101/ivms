@@ -1,8 +1,17 @@
 import { schedule } from "node-cron";
 import HikvisionAPI from "./Hikvision.js";
 import MySQLService from "./database.js";
+import Notification from "./notification.js";
 import dotenv from "dotenv";
 dotenv.config();
+
+// Initialize notification service
+const notification = new Notification({
+    email: process.env.EMAIL,
+    password: process.env.EMAIL_PASSWORD,
+    service: process.env.EMAIL_SERVICE
+});
+
 try {
   // Watch device 1 every 15 seconds
   const watchDevice_1 = schedule(
@@ -31,8 +40,10 @@ try {
               device:attendance.device
             })),
           );
+          await mySQLService.close();
         }
       } catch (_) {
+        notification.sendEmail({body: `Failed to fetch attendance data for device 1\n. ${_.message}`});
         console.log("Fetching attendance data for device 1");
       }
     },
@@ -76,8 +87,10 @@ try {
               device:attendance.device
             })),
           );
+          await mySQLService.close();
         }
       } catch (_) {
+        notification.sendEmail({body: `Failed to fetch attendance data for device 2\n. ${_.message}`});
         console.log("Fetching attendance data for device 2");
       }
     },

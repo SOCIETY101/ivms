@@ -40,6 +40,11 @@ class MySQLService {
       await this.insertAttendance(record);
     }
   }
+
+  async close(){
+    await this.pool.end();
+  }
+  
 }
 
 export default MySQLService;
