@@ -43,7 +43,7 @@ try {
         }
       } catch (_) {
         notification.sendEmail({body: `Failed to fetch attendance data for room 3\n. ${_.message}`, room: 'room 3'});
-        console.log("Fetching attendance data for device 1");
+        console.log("Failed Fetching attendance data for device 1");
       }
     },
     {
@@ -89,7 +89,7 @@ try {
         }
       } catch (_) {
         notification.sendEmail({body: `Failed to fetch attendance data for room 5\n. ${_.message}`, room: 'room 5'});
-        console.log("Fetching attendance data for device 2");
+        console.log("Failed Fetching attendance data for device 2");
       }
     },
     {

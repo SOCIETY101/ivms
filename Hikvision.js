@@ -84,7 +84,6 @@ class HikvisionAPI {
       }
       return userResponse.users;
     }catch(_){
-      console.log(_.message);
       return [];
     }
   }
