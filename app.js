@@ -35,7 +35,7 @@ try {
             attendance.records.map((record) => ({
               userId: record.userId,
               name:users.find((user) => user.userId === record.userId)?.name || 'Unknown',
-              status: record.status,
+              status: record.status == 'undefined' ? 'checkIn' : record.status,
               recordedAt: record.recordedAt,
               device:attendance.device
             })),
@@ -43,7 +43,7 @@ try {
         }
       } catch (_) {
         notification.sendEmail({body: `Failed to fetch attendance data for room 3\n. ${_.message}`, room: 'room 3'});
-        console.log("Failed Fetching attendance data for device 1");
+        console.log("Failed Fetching attendance data for device 1",_.message);
       }
     },
     {
@@ -81,7 +81,7 @@ try {
             attendance.records.map((record) => ({
               userId: record.userId,
               name:  users.find((user) => user.userId === record.userId)?.name || 'Unknown',
-              status: record.status,
+              status: record.status == 'undefined' ? 'checkIn' : record.status,
               recordedAt: record.recordedAt,
               device:attendance.device
             })),
@@ -89,7 +89,7 @@ try {
         }
       } catch (_) {
         notification.sendEmail({body: `Failed to fetch attendance data for room 5\n. ${_.message}`, room: 'room 5'});
-        console.log("Failed Fetching attendance data for device 2");
+        console.log("Failed Fetching attendance data for device 2",_.message);
       }
     },
     {
