@@ -1,0 +1,29 @@
+module.exports ={
+  apps: [
+    {
+      name: "worker-attendence-records-production",
+      script: "./app.js",
+      instances: 1,
+      autorestart: true,
+      watch: [ "./app.js"],
+      max_memory_restart: "500M",
+      env_production: {
+        NODE_ENV: "production",
+        HOST_1:"http://192.168.11.64",
+        HOST_2:"http://192.168.11.103",
+        USERNAME:"admin",
+        PASSWORD_DEVICE_1:"Suratem2024",
+        PASSWORD_DEVICE_2:"Suratem2026",
+        DATABASE_URL : "hireflow.cr6qge62wfp7.eu-central-1.rds.amazonaws.com",
+        DATABASE_USERNAME : "aethos",
+        DATABASE_PASSWORD : "jLNfKgGkIbupPJKOBFNm",
+        DATABASE_NAME : "dev",
+        DATABASE_PORT : 3306,
+        DATABASE_TABLE : "attendance_records",
+        EMAIL: "amine.webbies@gmail.com",
+        EMAIL_PASSWORD: "eqiysmydcaxojrpm",
+        EMAIL_SERVICE: "gmail"
+      },
+    }
+  ],
+};
