@@ -21,9 +21,15 @@ class AttendanceResponse {
       item => new AttendanceRecord(item)
     ) : [];
   }
-}
 
-export {
-  AttendanceResponse,
-  AttendanceRecord
-};
+  recordsByUserId(room, users) {
+    return this.records.map(record => ({
+      userId: record.userId,
+          name: users.find((user) => user.userId === record.userId)?.name || "Unknown",
+          status: record.status == "undefined" ? "checkIn" : record.status,
+          recordedAt: record.recordedAt,
+          device: room
+    }));
+  } 
+}
+export  default AttendanceResponse;

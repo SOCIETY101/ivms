@@ -1,8 +1,9 @@
 import { schedule } from "node-cron";
-import HikvisionAPI from "./Hikvision.js";
-import MySQLService from "./database.js";
 import Notification from "./notification.js";
+import persistRecords from "./helper.js";
 import dotenv from "dotenv";
+import moment from "moment";
+
 dotenv.config();
 
 // Initialize notification service
@@ -12,94 +13,59 @@ const notification = new Notification({
     service: process.env.EMAIL_SERVICE
 });
 
-try {
-  // Watch device 1 every 15 seconds
-  const watchDevice_1 = schedule(
-    "*/15 * * * * *",
-    async () => {
-      try {
-        const hikvisionAPI = new HikvisionAPI({
-          host: process.env.HOST_1,
-          username: process.env.USERNAME,
-          password: process.env.PASSWORD_DEVICE_1,
-          device:'room 3'
-        });
-        const attendance = await hikvisionAPI.getAttendance({position: 0});
-        if (attendance?.numOfMatches > 0) {
-          const mySQLService = new MySQLService();
-          const users = await hikvisionAPI.getUserInfo({
-            userIds:[...new Set(attendance.records.map(record => record.userId))],
-            position:0
-          });
-          await mySQLService.insertMany(
-            attendance.records.map((record) => ({
-              userId: record.userId,
-              name:users.find((user) => user.userId === record.userId)?.name || 'Unknown',
-              status: record.status == 'undefined' ? 'checkIn' : record.status,
-              recordedAt: record.recordedAt,
-              device:attendance.device
-            })),
-          );
-        }
-      } catch (_) {
-        notification.sendEmail({body: `Failed to fetch attendance data for room 3\n. ${_.message}`, room: 'room 3'});
-        console.log("Failed Fetching attendance data for device 1",_.message);
-      }
-    },
-    {
-      scheduled: true,
-      recoverMissedExecutions: false,
-      name: "watchDevice_1",
-      timezone: "Africa/Casablanca",
-      runOnInit: false,
-    },
-  );
-} catch (e) {
-  console.error("Error during task <watchDevice_1> execution:", e?.message);
-}
+const devices = [
+  {
+    name: "watch_device_1",
+    host: process.env.HOST_1,
+    username: process.env.USERNAME,
+    password: process.env.PASSWORD_DEVICE_1,
+    room: "room 3"
+  },
+  {
+    name: "watch_device_2",
+    host: process.env.HOST_2,
+    username: process.env.USERNAME,
+    password: process.env.PASSWORD_DEVICE_2,
+    room: "room 5"
+  },
+];
+
+// Schedule the task to run every 15 seconds
 
 try {
-  // Watch device 2 every 15 seconds
-  const watchDevice_2 = schedule(
-    "*/15 * * * * *",
+  const watchAllDevices = schedule(
+    "*/15 * * * * 1-6",
     async () => {
-      try {
-        const hikvisionAPI = new HikvisionAPI({
-          host: process.env.HOST_2,
-          username: process.env.USERNAME,
-          password: process.env.PASSWORD_DEVICE_2,
-          device:'room 5'
-        });
-        const attendance = await hikvisionAPI.getAttendance({position:0});
-        if (attendance?.numOfMatches > 0) {
-          const mySQLService = new MySQLService();
-          const users = await hikvisionAPI.getUserInfo({
-            userIds:[...new Set(attendance.records.map(record => record.userId))],
-            position:0
-          });
-          await mySQLService.insertMany(
-            attendance.records.map((record) => ({
-              userId: record.userId,
-              name:  users.find((user) => user.userId === record.userId)?.name || 'Unknown',
-              status: record.status == 'undefined' ? 'checkIn' : record.status,
-              recordedAt: record.recordedAt,
-              device:attendance.device
-            })),
-          );
-        }
-      } catch (_) {
-        notification.sendEmail({body: `Failed to fetch attendance data for room 5\n. ${_.message}`, room: 'room 5'});
-        console.log("Failed Fetching attendance data for device 2",_.message);
-      }
+      await Promise.all(devices.map((device) => persistRecords({...device, notification})));
     },
     {
       scheduled: true,
       recoverMissedExecutions: false,
-      name: "watchDevice_2",
+      name: "watchAllDevices",
       timezone: "Africa/Casablanca",
       runOnInit: false,
     },
   );
 } catch (e) {
-  console.error("Error during task <watchDevice_2> execution:", e?.message);
+  // Log the error for debugging purposes
+  console.log(`unable to execute Attendance records task at ${moment().format("YYYY-MM-DD HH:mm:ss")}\n`, e?.message);
+}
+
+// Schedule a Daily task at 3:00 AM every day
+try {
+  const dailyTask = schedule(
+    "0 3 * * *",
+    async () => {
+       await Promise.all(devices.map((device) => persistRecords({...device, notification, isDailyTask: true})));
+    },
+    {
+      scheduled: true,
+      recoverMissedExecutions: false,
+      name: "dailyTask",
+      timezone: "Africa/Casablanca",
+      runOnInit: false,
+    },
+  );
+} catch (e) {
+  console.log(`Unable to execute Daily task at ${moment().format("YYYY-MM-DD HH:mm:ss")}\n`, e?.message);
 }

@@ -14,7 +14,17 @@ class MySQLService {
     });
   }
 
-  async insertRecords(records, sql) {
+  async insertRecords(records) {
+      const sql = `
+        INSERT INTO ${process.env.DATABASE_TABLE} (
+          userId,
+          name,
+          recorded_at,
+          status,
+          room
+        )
+        VALUES ?
+      `;
     for (let i = 0; i < records.length; i += this.maxSize) {
       const chunk = records.slice(i, i + this.maxSize);
       const values = chunk.map((record) => [
@@ -30,21 +40,20 @@ class MySQLService {
     }
   }
 
-  async insertMany(records) {
+  async deleteRecords() {
+     const sql = ` DELETE FROM ${process.env.DATABASE_TABLE} WHERE DATE(recorded_at) = DATE(?)`;
+     const previousDay = moment().utc(true).subtract(1, "days").startOf("days").format("YYYY-MM-DD");
+    await this.pool.query(sql, [previousDay]);
+  };
+
+  async insertMany(records, isDailyTask = false) {
     try {
-      const sql = `
-        INSERT INTO ${process.env.DATABASE_TABLE} (
-          userId,
-          name,
-          recorded_at,
-          status,
-          room
-        )
-        VALUES ?
-      `;
-      await this.insertRecords(records, sql);
+      if (isDailyTask) {
+        await this.deleteRecords();
+      };
+      await this.insertRecords(records);
     } catch (e) {
-      throw new Error(e?.message || "Failed Insert Into Database");
+      throw new Error(e?.message || "Failed Insert/Delete Database");
     } finally {
       await this.pool.end();
     }

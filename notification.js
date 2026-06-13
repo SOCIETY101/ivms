@@ -26,7 +26,7 @@ class Notification {
        await this.transporter.sendMail({
         from: this.email,
         to: this.email,
-        subject: "Attendance Report",
+        subject: `Attendance Report - ${moment().format("YYYY-MM-DD HH:mm:ss")}`,
         text: body,
       });
       this.retry[deviceIndex].lastAttempt = moment().utc(true);

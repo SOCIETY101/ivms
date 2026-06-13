@@ -1,6 +1,6 @@
 import { exec } from "child_process";
 import moment from "moment";
-import { AttendanceResponse } from "./attendance.js";
+import AttendanceResponse from "./attendance.js";
 import UserResponse from "./user.js";
 
 class HikvisionAPI {

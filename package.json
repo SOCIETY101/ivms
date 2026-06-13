@@ -10,13 +10,19 @@
   "type": "module",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "worker:production": "pm2 start ecosystem.config.cjs --env production --only worker-attendence-records-production",
+    "worker:stop": "pm2 stop all",
+    "worker:delete": "pm2 delete all",
+    "worker:restart": "pm2 restart all",
+    "worker:status": "pm2 status all",
+    "worker:logs": "pm2 logs"
   },
   "dependencies": {
     "dotenv": "^17.4.2",
     "moment-timezone": "^0.6.2",
     "mysql2": "^3.22.3",
     "node-cron": "^4.2.1",
-    "nodemailer": "^8.0.10"
+    "nodemailer": "^8.0.10",
+    "pm2": "^6.0.10"
   }
 }
