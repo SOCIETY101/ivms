@@ -21,7 +21,7 @@ module.exports ={
         DATABASE_PORT : 3306,
         DATABASE_TABLE : "attendance_records",
         EMAIL: "amine.webbies@gmail.com",
-        EMAIL_PASSWORD: "eqiysmydcaxojrpm",
+        EMAIL_PASSWORD: "xndatgnzudhvczil",
         EMAIL_SERVICE: "gmail"
       },
     }
