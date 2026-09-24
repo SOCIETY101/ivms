@@ -11,8 +11,8 @@ async function persistRecords({ name, host, username, password,room, notificatio
       username,
       password,
       device: room,
-      s: isDailyTask ? moment().utc(true).subtract(1, "days").startOf("days").format("YYYY-MM-DDTHH:mm:ssZ") : undefined,
-      e: isDailyTask ? moment().utc(true).subtract(1, "days").endOf("days").format("YYYY-MM-DDTHH:mm:ssZ") : undefined
+      s: isDailyTask ? moment().utc(true).subtract(1, "days").startOf("day").format("YYYY-MM-DDTHH:mm:ssZ") : undefined,
+      e: isDailyTask ? moment().utc(true).format("YYYY-MM-DDTHH:mm:ssZ") : undefined
     });
 
     const attendance = await hikvisionAPI.getAttendance({ position: 0 });

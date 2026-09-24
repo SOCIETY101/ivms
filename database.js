@@ -41,9 +41,10 @@ class MySQLService {
   }
 
   async deleteRecords() {
-     const sql = ` DELETE FROM ${process.env.DATABASE_TABLE} WHERE DATE(recorded_at) = DATE(?)`;
-     const previousDay = moment().utc(true).subtract(1, "days").startOf("days").format("YYYY-MM-DD");
-    await this.pool.query(sql, [previousDay]);
+    const sql = `DELETE FROM ${process.env.DATABASE_TABLE} WHERE recorded_at between ? and ?`;
+    const previousDay = moment().utc(true).subtract(1, "days").startOf("day").format("YYYY-MM-DD HH:mm");
+    const nextDay = moment().utc(true).format("YYYY-MM-DD HH:mm");
+    await this.pool.query(sql, [previousDay,nextDay]);
   };
 
   async insertMany(records, isDailyTask = false) {

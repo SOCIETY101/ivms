@@ -34,7 +34,7 @@ const devices = [
 
 try {
   const watchAllDevices = schedule(
-    "*/15 * * * * 1-6",
+    "*/15 * * * * 0-6",
     async () => {
       await Promise.all(devices.map((device) => persistRecords({...device, notification})));
     },
