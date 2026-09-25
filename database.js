@@ -1,5 +1,6 @@
 import { createPool } from "mysql2/promise";
 import moment from "moment";
+import _ from "lodash"
 class MySQLService {
   constructor() {
     this.maxSize = 1000;
@@ -42,14 +43,14 @@ class MySQLService {
 
   async deleteRecords() {
     const sql = `DELETE FROM ${process.env.DATABASE_TABLE} WHERE recorded_at between ? and ?`;
-    const previousDay = moment().utc(true).subtract(1, "days").startOf("day").format("YYYY-MM-DD HH:mm");
+    const previousDay = moment().utc(true).subtract(1, "day").startOf("day").format("YYYY-MM-DD HH:mm");
     const nextDay = moment().utc(true).format("YYYY-MM-DD HH:mm");
     await this.pool.query(sql, [previousDay,nextDay]);
   };
 
   async insertMany(records, isDailyTask = false) {
     try {
-      if (isDailyTask) {
+      if (isDailyTask && _.first(records)?.device?.includes("3")) {
         await this.deleteRecords();
       };
       await this.insertRecords(records);
