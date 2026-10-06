@@ -2,7 +2,7 @@
 import HikvisionAPI from "./hikvision.js";
 import MySQLService from "./database.js";
 import moment from "moment";
-
+import _ from "lodash";
 
 async function persistRecords({ name, host, username, password,room, notification,isDailyTask = false }) {
   try {
@@ -11,8 +11,8 @@ async function persistRecords({ name, host, username, password,room, notificatio
       username,
       password,
       device: room,
-      s: isDailyTask ? moment().utc(true).subtract(1, "day").startOf("day").format("YYYY-MM-DDTHH:mm:ssZ") : undefined,
-      e: isDailyTask ? moment().utc(true).format("YYYY-MM-DDTHH:mm:ssZ") : undefined
+      s: isDailyTask ? moment().subtract(1, "day").startOf("day").format("YYYY-MM-DDTHH:mm:ssZ") : undefined,
+      e: isDailyTask ? moment().format("YYYY-MM-DDTHH:mm:ssZ") : undefined
     });
 
     const attendance = await hikvisionAPI.getAttendance({ position: 0 });
@@ -23,8 +23,14 @@ async function persistRecords({ name, host, username, password,room, notificatio
         userIds: [...new Set(attendance.records.map((record) => record.userId))],
         position: 0,
       });
+      const records = attendance.recordsByUserId(room, users);
+      if(_.isEmpty(records)) return;
 
-      await mySQLService.insertMany(attendance.recordsByUserId(room, users),isDailyTask);
+      if(isDailyTask){
+        await mySQLService.insertManyRefresh(records,room);
+      }else{
+        await mySQLService.insertMany(records);
+      }
     }
   } catch (_) {
     // Send notification email on failure

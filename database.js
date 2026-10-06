@@ -1,6 +1,7 @@
 import { createPool } from "mysql2/promise";
 import moment from "moment";
-import _ from "lodash"
+import _ from "lodash";
+
 class MySQLService {
   constructor() {
     this.maxSize = 1000;
@@ -41,20 +42,32 @@ class MySQLService {
     }
   }
 
-  async deleteRecords() {
-    const sql = `DELETE FROM ${process.env.DATABASE_TABLE} WHERE recorded_at between ? and ?`;
-    const previousDay = moment().utc(true).subtract(1, "day").startOf("day").format("YYYY-MM-DD HH:mm");
-    const nextDay = moment().utc(true).format("YYYY-MM-DD HH:mm");
-    await this.pool.query(sql, [previousDay,nextDay]);
+  async deleteRecords(room) {
+    const sql = `DELETE FROM ${process.env.DATABASE_TABLE} WHERE room = ? and recorded_at between ? and ?`;
+    const previousDay = moment().subtract(1, "day").startOf("day").format("YYYY-MM-DD HH:mm");
+    const nextDay = moment().format("YYYY-MM-DD HH:mm");
+    await this.pool.query(sql, [room,previousDay,nextDay]);
   };
 
-  async insertMany(records, isDailyTask = false) {
+  async insertMany(records) {
     try {
-      if (isDailyTask && _.first(records)?.device?.includes("3")) {
-        await this.deleteRecords();
-      };
       await this.insertRecords(records);
     } catch (e) {
+      throw new Error(e?.message || "Failed Insert/Delete Database");
+    } finally {
+      await this.pool.end();
+    }
+  }
+
+  async insertManyRefresh(records,room) {
+    const connection = await this.pool.getConnection();
+    try {
+      await connection.beginTransaction();
+      if(_.size(records)) await this.deleteRecords(room);
+      await this.insertRecords(records);
+      await connection.commit();
+    } catch (e) {
+      await connection.rollback();
       throw new Error(e?.message || "Failed Insert/Delete Database");
     } finally {
       await this.pool.end();
